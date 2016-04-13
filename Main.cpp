@@ -11,7 +11,6 @@ int WINAPI WinMain(HINSTANCE hInstance,
 
 	Engine *pEngine = Engine::getInstance();
 	pEngine->InitWithProgramInstance(hInstance);
-	// Main loop
 	pEngine->Run();
 
 	return 0;

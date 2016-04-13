@@ -12,8 +12,9 @@ class Engine : public Singleton<Engine> {
 
 	Engine() : pMessageManager(MessageManager::getInstance()) { }
 
-	const TCHAR *lpszWindowClass = _T("win32app");
-	const TCHAR *lpszTitle = _T("Win32 Guided Tour Application");
+	const TCHAR *lpszWindowClass = _T("lonelyisland");
+	const TCHAR *lpszTitle = _T("DirectX App");
+	const TCHAR *plszAppName = _T("Lonely Island");
 	HRESULT CreateUserWindow(HINSTANCE hInstance, int nCmdShow) {
 		WNDCLASSEX Window;
 
@@ -32,9 +33,8 @@ class Engine : public Singleton<Engine> {
 		Window.hIconSm = LoadIcon(Window.hInstance, MAKEINTRESOURCE(IDI_APPLICATION));
 
 		if (!RegisterClassEx(&Window)) {
-			MessageBox(NULL,
-				_T("Call to RegisterClassEx failed!"),
-				_T("Win32 Guided Tour"), NULL);
+			MessageBox(NULL, _T("Call to RegisterClassEx failed!"),
+				plszAppName, NULL);
 			return 1;
 		}
 
@@ -43,9 +43,8 @@ class Engine : public Singleton<Engine> {
 			500, 100, NULL, NULL,
 			hInstance, NULL);
 		if (!hWnd) {
-			MessageBox(NULL,
-				_T("Call to CreateWindow failed!"),
-				_T("Win32 Guided Tour"), NULL);
+			MessageBox(NULL, _T("Call to CreateWindow failed!"),
+				plszAppName, NULL);
 			return 1;
 		}
 
