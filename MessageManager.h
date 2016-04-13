@@ -1,5 +1,10 @@
 #pragma once
 
+#include <windows.h>
+#include <tchar.h>
+
+#include "Singleton.h"
+
 class MessageManager : public Singleton<MessageManager> {
 public:
 	static LRESULT CALLBACK MessageDispatcher(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
