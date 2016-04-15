@@ -1,6 +1,6 @@
 #include "Engine.h"
 
-HRESULT Engine::CreateUserWindow(HINSTANCE hInstance, int nCmdShow) {
+HRESULT Engine::CreateUserWindow() {
 	WNDCLASSEX Window;
 
 	Window.cbSize = sizeof(WNDCLASSEX);
@@ -8,8 +8,8 @@ HRESULT Engine::CreateUserWindow(HINSTANCE hInstance, int nCmdShow) {
 	Window.lpfnWndProc = (WNDPROC)&this->MessageDispatcher;
 	Window.cbClsExtra = 0;
 	Window.cbWndExtra = 0;
-	Window.hInstance = hInstance;
-	Window.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_APPLICATION));
+	Window.hInstance = hProgramInstance;
+	Window.hIcon = LoadIcon(hProgramInstance, MAKEINTRESOURCE(IDI_APPLICATION));
 	Window.hCursor = LoadCursor(NULL, IDC_ARROW);
 	Window.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
 	Window.lpszMenuName = NULL;
@@ -22,35 +22,39 @@ HRESULT Engine::CreateUserWindow(HINSTANCE hInstance, int nCmdShow) {
 		return 1;
 	}
 
-	HWND hWnd = CreateWindow(lpszWindowClass, lpszTitle,
+	hWindow = CreateWindow(lpszWindowClass, lpszTitle,
 		WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
-		500, 100, NULL, NULL,
-		hInstance, NULL);
-	if (!hWnd) {
+		Opts->DisplayWidth, Opts->DisplayHeight, NULL, NULL,
+		hProgramInstance, NULL);
+	if (!hWindow) {
 		MessageBox(NULL, _T("Call to CreateWindow failed!"),
 			plszAppName, NULL);
 		return 1;
 	}
 
-	ShowWindow(hWnd, nCmdShow);
-	UpdateWindow(hWnd);
-
+	ShowWindow(hWindow, Opts->WindowType);
 
 	return 0;
 }
 
 void Engine::Run() {
 	MSG Msg;
-	while (GetMessage(&Msg, NULL, 0, 0)) {
-		TranslateMessage(&Msg);
-		DispatchMessage(&Msg);
+	Msg.message = WM_NULL;
+
+	PeekMessage(&Msg, NULL, 0U, 0U, PM_NOREMOVE);
+	while (WM_QUIT != Msg.message) {
+		if (PeekMessage(&Msg, NULL, 0, 0, PM_REMOVE)) {
+			TranslateMessage(&Msg);
+			DispatchMessage(&Msg);
+		} else
+			Renderer->Render();
 	}
 }
 
 LRESULT CALLBACK Engine::MessageDispatcher(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 	PAINTSTRUCT ps;
 	HDC hDisplayDeviceContext;
-	TCHAR *greeting = _T("Hello, World!");
+	const TCHAR *greeting = _T("Hello, World!");
 
 	switch (message) {
 	case WM_PAINT:
@@ -59,8 +63,7 @@ LRESULT CALLBACK Engine::MessageDispatcher(HWND hWnd, UINT message, WPARAM wPara
 		// Here your application is laid out.
 		// For this introduction, we just print out "Hello, World!"
 		// in the top left corner.
-		TextOut(hDisplayDeviceContext,
-			5, 5, greeting, _tcslen(greeting));
+		TextOut(hDisplayDeviceContext, 5, 5, greeting, _tcslen(greeting));
 		// End application-specific layout section.
 
 		EndPaint(hWnd, &ps);
