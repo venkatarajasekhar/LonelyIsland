@@ -1,20 +1,21 @@
 #pragma once
 
-#include <windows.h>
 #include <tchar.h>
+#include <windows.h>
 
+#include "Options.h"
 #include "Singleton.h"
-#include "MessageManager.h"
 
 class Engine : public Singleton<Engine> {
 	friend class Singleton<Engine>;
 
-	MessageManager *pMessageManager;
+	Options *Opts;
 
 	Engine(const Engine&) = delete;
 	Engine(const Engine&&) = delete;
+	Engine &operator=(const Engine) = delete;
 
-	Engine() : pMessageManager(MessageManager::getInstance()) { }
+	Engine() : Opts(new Options()) { }
 
 	const TCHAR *lpszWindowClass = _T("lonelyisland");
 	const TCHAR *lpszTitle = _T("DirectX App");
@@ -26,6 +27,8 @@ public:
 	void InitWithProgramInstance(HINSTANCE hInstance) {
 		CreateUserWindow(hInstance, SW_SHOWMAXIMIZED);
 	}
+
+	static LRESULT CALLBACK MessageDispatcher(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 	void Run();
 };
