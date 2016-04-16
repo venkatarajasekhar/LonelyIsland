@@ -7,7 +7,10 @@ int WINAPI WinMain(HINSTANCE hInstance,
 
 	Engine *pEngine = Engine::getInstance();
 	pEngine->InitWithProgramInstance(hInstance);
+	if (pEngine->isInvalid())
+		return 0;
 	pEngine->Run();
+	pEngine->Release();
 
 	return 0;
 }
