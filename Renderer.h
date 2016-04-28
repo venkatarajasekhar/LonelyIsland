@@ -42,11 +42,6 @@ class DXRenderer : public IRenderer {
 
 	bool Invalid;
 
-	struct SimpleVertex {
-		DirectX::XMFLOAT3 Pos;
-		DirectX::XMFLOAT4 Color;
-	};
-
 	struct ConstantBuffer
 	{
 		DirectX::XMMATRIX mWorld;
