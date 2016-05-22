@@ -7,11 +7,12 @@
 #include <windows.h>
 
 #include "ErrorManager.h"
+#include "Scene.h"
 
 class IRenderer {
 public:
 	virtual void Init(HINSTANCE hInstance, HWND hWnd) = 0;
-	virtual void Render() = 0;
+	virtual void Render(Scene *) = 0;
 	virtual bool isInvalid() const = 0;
 };
 
@@ -52,6 +53,7 @@ class DXRenderer : public IRenderer {
 	HRESULT CompileShader(LPCWSTR lpszFileName, ID3DBlob **ppBlobOut, LPCSTR szShaderModel, LPCSTR szEntry = "main");
 	HRESULT InitShaders();
 
+	HRESULT DrawGeometry(Scene *);
 public:
 	DXRenderer() : pd3dDevice(nullptr), d3dDriverType(D3D_DRIVER_TYPE_UNKNOWN),
 		d3dFeatureLevel(D3D_FEATURE_LEVEL_11_0), pd3dDeviceContext(nullptr),
@@ -93,9 +95,7 @@ public:
 		Invalid = false;
 	}
 
-	virtual void Render() {
-		return;
-	}
+	virtual void Render(Scene *) override;
 
 	~DXRenderer() {
 		if (pd3dDevice) pd3dDevice->Release();

@@ -47,7 +47,7 @@ void Engine::Run() {
 			TranslateMessage(&Msg);
 			DispatchMessage(&Msg);
 		} else
-			Renderer->Render();
+			pRenderer->Render(pScene.get());
 	}
 }
 

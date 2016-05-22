@@ -6,6 +6,7 @@
 
 #include "ErrorManager.h"
 #include "Options.h"
+#include "Scene.h"
 #include "Singleton.h"
 #include "Renderer.h"
 
@@ -17,7 +18,9 @@ class Engine : public Singleton<Engine> {
 	HWND hWindow;
 
 	// To be sure that all the devices, contextes and buffers are successfully released.
-	std::unique_ptr<IRenderer> Renderer;
+	std::unique_ptr<IRenderer> pRenderer;
+
+	std::unique_ptr<Scene> pScene;
 
 	bool Invalid;
 
@@ -25,7 +28,7 @@ class Engine : public Singleton<Engine> {
 	Engine(const Engine&&) = delete;
 	Engine &operator=(const Engine) = delete;
 
-	Engine() : Opts(new Options()), Renderer(new DXRenderer()), Invalid(true) { }
+	Engine() : Opts(new Options()), pRenderer(new DXRenderer()), pScene(new Scene()), Invalid(true) { }
 
 	const TCHAR *lpszWindowClass = _T("lonelyisland");
 	const TCHAR *lpszTitle = _T("DirectX App");
@@ -42,8 +45,8 @@ public:
 	void InitWithProgramInstance(HINSTANCE hInstance) {
 		hProgramInstance = hInstance;
 		CreateUserWindow();
-		Renderer->Init(hInstance, hWindow);
-		if (Renderer->isInvalid()) {
+		pRenderer->Init(hInstance, hWindow);
+		if (pRenderer->isInvalid()) {
 			EmitError(_T("Cannot initialize engine!"));
 			return;
 		}
@@ -56,7 +59,7 @@ public:
 
 	void Release() {
 		delete Opts;
-		Renderer.release();
+		pRenderer.release();
 		Invalid = true;
 	}
 };

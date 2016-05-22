@@ -5,28 +5,28 @@
 #include "Geometry.h"
 
 class RenderableObject {
-protected:
+public:
 	enum Topology {
 		Triangles
 	};
-public:
-	virtual SimpleVertex *getVertices() const = 0;
+
+	virtual const SimpleVertex *getVertices() const = 0;
 	virtual unsigned getNumVertices() const = 0;
-	virtual unsigned *getIndices(Topology) const = 0;
+	virtual WORD *getIndices(Topology) const = 0;
 	virtual unsigned getNumIndices(Topology) const = 0;
 };
 
 class Cube : public RenderableObject {
 	SimpleVertex mVertices[8];
 	unsigned mNumVertices;
-	mutable unsigned *pTriangularIndices, mNumTriangularIndices;
+	mutable WORD *pTriangularIndices;
+	mutable unsigned mNumTriangularIndices;
 
-	unsigned *getIndicesForTriangleTopology() const {
+	WORD *getIndicesForTriangleTopology() const {
 		// Indices are created lazily
 		if (!pTriangularIndices) {
-			mNumTriangularIndices = 6/*Shapes*/ * 2/*Triangles per shape*/ * 3/*Vertices per triangle*/;
-			pTriangularIndices = (unsigned *) ::operator new (mNumTriangularIndices * sizeof(unsigned));
-			unsigned PrettyIndices[] = {
+			pTriangularIndices = (WORD *) ::operator new (mNumTriangularIndices * sizeof(WORD));
+			WORD PrettyIndices[] = {
 				3, 1, 0,
 				2, 1, 3,
 
@@ -50,7 +50,8 @@ class Cube : public RenderableObject {
 		return pTriangularIndices;
 	}
 public:
-	Cube() : mNumVertices(8), pTriangularIndices(nullptr), mNumTriangularIndices(0) {
+	Cube() : mNumVertices(8),
+		pTriangularIndices(nullptr), mNumTriangularIndices(6/*Shapes*/ * 2/*Triangles per shape*/ * 3/*Vertices per triangle*/) {
 		mVertices[0] = { DirectX::XMFLOAT3(-1.0f, 1.0f, -1.0f),  DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f) };
 		mVertices[1] = { DirectX::XMFLOAT3(1.0f, 1.0f, -1.0f),   DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) };
 		mVertices[2] = { DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f),    DirectX::XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f) };
@@ -65,11 +66,11 @@ public:
 		return mNumVertices;
 	}
 
-	virtual SimpleVertex *getVertices() const override {
+	virtual const SimpleVertex *getVertices() const override {
 		return &mVertices[0];
 	}
 
-	virtual unsigned *getIndices(Topology T) const override {
+	virtual WORD *getIndices(Topology T) const override {
 		switch (T) {
 		case Triangles:
 			return getIndicesForTriangleTopology();
