@@ -210,3 +210,72 @@ HRESULT DXRenderer::InitShaders() {
 
 	return S_OK;
 }
+
+void DXRenderer::Render(Scene *pScene) {
+	float ClearColor[4] = { 0.1f, 0.9f, 0.1f, 1.0f };
+	pImmediateContext->ClearRenderTargetView(pRenderTargetView, ClearColor);
+	pImmediateContext->ClearDepthStencilView(pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+
+	ConstantBuffer ShaderInput;
+	Camera *pCamera = pScene->getCameraPtr();
+	ShaderInput.mWorld = DirectX::XMMatrixTranspose(DirectX::XMMatrixIdentity());
+	ShaderInput.mView = DirectX::XMMatrixTranspose(DirectX::XMMatrixLookAtLH(pCamera->mEye, pCamera->mPosition, pCamera->mUp));
+	ShaderInput.mProjection = DirectX::XMMatrixTranspose(DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV2, WindowWidth / (FLOAT)WindowHeight, 0.01f, 100.0f));
+	pImmediateContext->UpdateSubresource(pConstantBuffer, 0, NULL, &ShaderInput, 0, 0);
+
+	pImmediateContext->VSSetShader(pVertexShader, NULL, 0);
+	pImmediateContext->VSSetConstantBuffers(0, 1, &pConstantBuffer);
+	pImmediateContext->PSSetShader(pPixelShader, NULL, 0);
+
+	if (FAILED(DrawGeometry(pScene))) {
+		EmitError(_T("Drawing geometry failed!"));
+		return;
+	}
+
+	pSwapChain->Present(0, 0);
+}
+
+HRESULT DXRenderer::DrawGeometry(Scene *pScene) {
+	HRESULT res;
+	D3D11_BUFFER_DESC TempBuffer;
+	ZeroMemory(&TempBuffer, sizeof(TempBuffer));
+	D3D11_SUBRESOURCE_DATA InitData;
+	ZeroMemory(&InitData, sizeof(InitData));
+
+	RenderableObject *Cube = pScene->getObject();
+
+	TempBuffer.Usage = D3D11_USAGE_DEFAULT;
+	TempBuffer.ByteWidth = sizeof(SimpleVertex) * Cube->getNumVertices();
+	TempBuffer.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	TempBuffer.CPUAccessFlags = 0;
+	InitData.pSysMem = Cube->getVertices();
+	res = pd3dDevice->CreateBuffer(&TempBuffer, &InitData, &pVertexBuffer);
+	if (FAILED(res))
+		return res;
+	UINT stride = sizeof(SimpleVertex);
+	UINT offset = 0;
+	pImmediateContext->IASetVertexBuffers(0, 1, &pVertexBuffer, &stride, &offset);
+
+	TempBuffer.Usage = D3D11_USAGE_DEFAULT;
+	TempBuffer.ByteWidth = sizeof(WORD) * Cube->getNumIndices(RenderableObject::Triangles);
+	TempBuffer.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	TempBuffer.CPUAccessFlags = 0;
+	InitData.pSysMem = Cube->getIndices(RenderableObject::Triangles);
+	res = pd3dDevice->CreateBuffer(&TempBuffer, &InitData, &pIndexBuffer);
+	if (FAILED(res))
+		return res;
+	pImmediateContext->IASetIndexBuffer(pIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
+	pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	TempBuffer.Usage = D3D11_USAGE_DEFAULT;
+	TempBuffer.ByteWidth = sizeof(ConstantBuffer);
+	TempBuffer.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	TempBuffer.CPUAccessFlags = 0;
+	res = pd3dDevice->CreateBuffer(&TempBuffer, NULL, &pConstantBuffer);
+	if (FAILED(res))
+		return res;
+
+	pImmediateContext->DrawIndexed(Cube->getNumIndices(RenderableObject::Triangles), 0, 0);
+
+	return S_OK;
+}
