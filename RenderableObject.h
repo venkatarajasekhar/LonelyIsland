@@ -1,6 +1,7 @@
 #pragma once
 #include <new>
 
+#include "ErrorManager.h"
 #include "Geometry.h"
 
 class RenderableObject {
@@ -73,6 +74,7 @@ public:
 		case Triangles:
 			return getIndicesForTriangleTopology();
 		default:
+			EmitError(_T("Unknown topology type!"));
 			return nullptr;
 		}
 	}
@@ -82,6 +84,7 @@ public:
 		case Triangles:
 			return mNumTriangularIndices;
 		default:
+			EmitError(_T("Unknown topology type!"));
 			return 0;
 		}
 	}
