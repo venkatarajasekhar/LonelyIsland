@@ -54,6 +54,7 @@ public:
 	}
 
 	static LRESULT CALLBACK MessageDispatcher(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+	void DispatchMessageInternal(MSG *Msg);
 
 	void Run();
 

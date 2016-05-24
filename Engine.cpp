@@ -45,9 +45,34 @@ void Engine::Run() {
 	while (WM_QUIT != Msg.message) {
 		if (PeekMessage(&Msg, NULL, 0, 0, PM_REMOVE)) {
 			TranslateMessage(&Msg);
-			DispatchMessage(&Msg);
+			DispatchMessageInternal(&Msg);
 		} else
 			pRenderer->Render(pScene.get());
+	}
+}
+
+void Engine::DispatchMessageInternal(MSG *pMsg) {
+	switch (pMsg->message) {
+	case WM_CHAR: {
+		TCHAR ch = (TCHAR)pMsg->wParam;
+		Camera *pCamera = pScene->getCameraPtr();
+		switch (ch) {
+		case 'W':
+		case 'w':
+			pCamera->moveForward();
+			break;
+		case 'S':
+		case 's':
+			pCamera->moveBackward();
+			break;
+		default:
+			break;
+		}
+		break;
+	}
+	default:
+		DispatchMessage(pMsg);
+		break;
 	}
 }
 
@@ -59,13 +84,7 @@ LRESULT CALLBACK Engine::MessageDispatcher(HWND hWnd, UINT message, WPARAM wPara
 	switch (message) {
 	case WM_PAINT:
 		hDisplayDeviceContext = BeginPaint(hWnd, &ps);
-
-		// Here your application is laid out.
-		// For this introduction, we just print out "Hello, World!"
-		// in the top left corner.
 		TextOut(hDisplayDeviceContext, 5, 5, greeting, _tcslen(greeting));
-		// End application-specific layout section.
-
 		EndPaint(hWnd, &ps);
 		break;
 	case WM_DESTROY:

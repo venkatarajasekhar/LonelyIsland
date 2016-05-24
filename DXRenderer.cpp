@@ -219,7 +219,7 @@ void DXRenderer::Render(Scene *pScene) {
 	ConstantBuffer ShaderInput;
 	Camera *pCamera = pScene->getCameraPtr();
 	ShaderInput.mWorld = DirectX::XMMatrixTranspose(DirectX::XMMatrixIdentity());
-	ShaderInput.mView = DirectX::XMMatrixTranspose(DirectX::XMMatrixLookAtLH(pCamera->mEye, pCamera->mPosition, pCamera->mUp));
+	ShaderInput.mView = DirectX::XMMatrixTranspose(DirectX::XMMatrixLookToLH(pCamera->mPosition, pCamera->mEye, pCamera->mUp));
 	ShaderInput.mProjection = DirectX::XMMatrixTranspose(DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV2, WindowWidth / (FLOAT)WindowHeight, 0.01f, 100.0f));
 	pImmediateContext->UpdateSubresource(pConstantBuffer, 0, NULL, &ShaderInput, 0, 0);
 
