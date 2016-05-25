@@ -236,7 +236,7 @@ void DXRenderer::Render(Scene *pScene) {
 }
 
 HRESULT DXRenderer::DrawGeometry(Scene *pScene) {
-	HRESULT res;
+	HRESULT hr;
 	D3D11_BUFFER_DESC TempBuffer;
 	ZeroMemory(&TempBuffer, sizeof(TempBuffer));
 	D3D11_SUBRESOURCE_DATA InitData;
@@ -249,9 +249,11 @@ HRESULT DXRenderer::DrawGeometry(Scene *pScene) {
 	TempBuffer.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	TempBuffer.CPUAccessFlags = 0;
 	InitData.pSysMem = Cube->getVertices();
-	res = pd3dDevice->CreateBuffer(&TempBuffer, &InitData, &pVertexBuffer);
-	if (FAILED(res))
-		return res;
+	if (pVertexBuffer)
+		pVertexBuffer->Release();
+	hr = pd3dDevice->CreateBuffer(&TempBuffer, &InitData, &pVertexBuffer);
+	if (FAILED(hr))
+		return hr;
 	UINT stride = sizeof(SimpleVertex);
 	UINT offset = 0;
 	pImmediateContext->IASetVertexBuffers(0, 1, &pVertexBuffer, &stride, &offset);
@@ -261,9 +263,11 @@ HRESULT DXRenderer::DrawGeometry(Scene *pScene) {
 	TempBuffer.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	TempBuffer.CPUAccessFlags = 0;
 	InitData.pSysMem = Cube->getIndices(RenderableObject::Triangles);
-	res = pd3dDevice->CreateBuffer(&TempBuffer, &InitData, &pIndexBuffer);
-	if (FAILED(res))
-		return res;
+	if (pIndexBuffer)
+		pIndexBuffer->Release();
+	hr = pd3dDevice->CreateBuffer(&TempBuffer, &InitData, &pIndexBuffer);
+	if (FAILED(hr))
+		return hr;
 	pImmediateContext->IASetIndexBuffer(pIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
 	pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
@@ -271,9 +275,11 @@ HRESULT DXRenderer::DrawGeometry(Scene *pScene) {
 	TempBuffer.ByteWidth = sizeof(ConstantBuffer);
 	TempBuffer.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	TempBuffer.CPUAccessFlags = 0;
-	res = pd3dDevice->CreateBuffer(&TempBuffer, NULL, &pConstantBuffer);
-	if (FAILED(res))
-		return res;
+	if (pConstantBuffer)
+		pConstantBuffer->Release();
+	hr = pd3dDevice->CreateBuffer(&TempBuffer, NULL, &pConstantBuffer);
+	if (FAILED(hr))
+		return hr;
 
 	pImmediateContext->DrawIndexed(Cube->getNumIndices(RenderableObject::Triangles), 0, 0);
 
