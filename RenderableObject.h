@@ -50,16 +50,27 @@ class Cube : public RenderableObject {
 		return pTriangularIndices;
 	}
 public:
-	Cube() : mNumVertices(8),
+	/* Default vertices are:
+	mVertices[0] = { DirectX::XMFLOAT3(-1.0f, 1.0f, -1.0f),  DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f) };
+	mVertices[1] = { DirectX::XMFLOAT3(1.0f, 1.0f, -1.0f),   DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) };
+	mVertices[2] = { DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f),    DirectX::XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f) };
+	mVertices[3] = { DirectX::XMFLOAT3(-1.0f, 1.0f, 1.0f),   DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f) };
+	mVertices[4] = { DirectX::XMFLOAT3(-1.0f, -1.0f, -1.0f), DirectX::XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f) };
+	mVertices[5] = { DirectX::XMFLOAT3(1.0f, -1.0f, -1.0f),  DirectX::XMFLOAT4(1.0f, 1.0f, 0.0f, 1.0f) };
+	mVertices[6] = { DirectX::XMFLOAT3(1.0f, -1.0f, 1.0f),   DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) };
+	mVertices[7] = { DirectX::XMFLOAT3(-1.0f, -1.0f, 1.0f),  DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
+	*/
+
+	Cube(DirectX::XMFLOAT3 mCenter = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f), float edge = 1) : mNumVertices(8),
 		pTriangularIndices(nullptr), mNumTriangularIndices(6/*Shapes*/ * 2/*Triangles per shape*/ * 3/*Vertices per triangle*/) {
-		mVertices[0] = { DirectX::XMFLOAT3(-1.0f, 1.0f, -1.0f),  DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f) };
-		mVertices[1] = { DirectX::XMFLOAT3(1.0f, 1.0f, -1.0f),   DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) };
-		mVertices[2] = { DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f),    DirectX::XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f) };
-		mVertices[3] = { DirectX::XMFLOAT3(-1.0f, 1.0f, 1.0f),   DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f) };
-		mVertices[4] = { DirectX::XMFLOAT3(-1.0f, -1.0f, -1.0f), DirectX::XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f) };
-		mVertices[5] = { DirectX::XMFLOAT3(1.0f, -1.0f, -1.0f),  DirectX::XMFLOAT4(1.0f, 1.0f, 0.0f, 1.0f) };
-		mVertices[6] = { DirectX::XMFLOAT3(1.0f, -1.0f, 1.0f),   DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) };
-		mVertices[7] = { DirectX::XMFLOAT3(-1.0f, -1.0f, 1.0f),  DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
+		const float d = edge / 2;
+		for (unsigned i = 0; i < 8; i++) {
+			// Too dirty
+			float x = ((i & 1) << 1 == (i & 2)) ? mCenter.x - d : mCenter.x + d;
+			float y = i >= 4 ? mCenter.y - d : mCenter.y + d;
+			float z = (i & 2) ? mCenter.z + d : mCenter.z - d;
+			mVertices[i] = { DirectX::XMFLOAT3(x, y, z),  DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) };
+		}
 	}
 
 	virtual unsigned getNumVertices() const {
