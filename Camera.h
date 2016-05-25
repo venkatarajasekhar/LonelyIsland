@@ -9,8 +9,8 @@ struct Camera {
 	float mSpeed;
 
 	Camera() :
-		mPosition(DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f)),
-		mUp(DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f)),
+		mPosition(DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)),
+		mUp(DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f)),
 		mEye(DirectX::XMVectorSet(0.0f, 1.0f, -5.0f, 0.0f)),
 		mSpeed(0.2f)
 	{}
